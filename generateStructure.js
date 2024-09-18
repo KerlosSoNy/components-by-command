@@ -85,7 +85,7 @@ const folderStructure = [
     subfolders: []
   },
   {
-    name: 'validations',
+    name: 'validation',
     files: ['validation.ts'],
     subfolders: []
   },
@@ -119,7 +119,14 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath} with default content`);
       }
-    } else {
+    } else if(folder.name === 'validation'){
+      const filePath = path.join(folderPath, `${mainFolderName}Schema.ts`);
+      if (!fs.existsSync(filePath)) {
+        let content = `// ${file} to Validate With Yup`;
+        fs.writeFileSync(filePath, content);
+        console.log(`Created file: ${filePath} with default content`);
+      }
+    }else {
       // Handle other folders' files
       folder.files.forEach(file => {
         const filePath = path.join(folderPath, file);
