@@ -119,7 +119,6 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
     } else if(folder.name === 'validation'){
       const filePath = path.join(folderPath, `${mainFolderName}Schema.ts`);
       if (!fs.existsSync(filePath)) {
-        let content = `// ${filePath} to Validate With Yup`;
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath} with default content`);
       }
