@@ -100,15 +100,9 @@ export default ${componentName}Slice.reducer;
 `;
 
 const updateStoreFile = (mainFolderName) => {
-  const projectRoot = path.join(process.cwd(), '..');
-  const storeDirPath = path.join(projectRoot,'lib', 'redux');
-  
-  if (!fs.existsSync(storeDirPath)) {
-      fs.mkdirSync(storeDirPath, { recursive: true });
-      console.log(`Created folder: ${storeDirPath}`);
-  }
+  const projectRoot = process.cwd();
+  const storeFilePath = path.join(projectRoot, '..', 'lib', 'redux', 'store.ts');
 
-  const storeFilePath = path.join(storeDirPath, 'store.ts');
   const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
   const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
 
@@ -130,15 +124,14 @@ const updateStoreFile = (mainFolderName) => {
       console.log(`Updated ${storeFilePath} with ${mainFolderName}Slice in reducer`);
   } else {
       const initialStoreContent = `
-      import { configureStore } from '@reduxjs/toolkit';
-      import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';
+import { configureStore } from '@reduxjs/toolkit';
+import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';
 
-      export const store = configureStore({
-          reducer: {
-              ${mainFolderName}: ${mainFolderName}Slice,
-          },
-      });
-      `;
+export const store = configureStore({
+  reducer: {
+      ${mainFolderName}: ${mainFolderName}Slice,
+  },
+});`;
 
       fs.writeFileSync(storeFilePath, initialStoreContent);
       console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
