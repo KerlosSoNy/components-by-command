@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
 const path = require('path');
+const fs = require('fs');
+
+
+console.log('Script started');
 
 const folderStructure = [
   {
@@ -32,8 +35,6 @@ const folderStructure = [
 ];
 
 const defaultComponentContent = (componentName) => `
-import React from 'react';
-
 export default function ${componentName}(){
     return (
       <div>
@@ -49,7 +50,7 @@ import axios from 'axios';
 
 export const get${componentName}s = createAsyncThunk(
   "${componentName.toLowerCase()}/get${componentName}s",
-  async ({ pageSize, currenPage, search }: { pageSize?: number; currenPage?: number; search: string }) => {
+  async ({ pageSize:number|string|undefined, currenPage:number|string|undefined, search:search|undefined }) => {
     try {
       const response = await axios.get(\`${apiEndpoint}?per_page=\${pageSize}&page=\${currenPage}\`, {
         headers: {
@@ -66,7 +67,7 @@ export const get${componentName}s = createAsyncThunk(
 
 export const get${componentName} = createAsyncThunk(
   "${componentName.toLowerCase()}/get${componentName}",
-  async (id: number | string | undefined) => {
+  async (id) => {
     try {
       const response = await axios.get(\`${apiEndpoint}/\${id}\`);
       return response.data;
@@ -98,7 +99,53 @@ const ${componentName}Slice = createSlice({
 export default ${componentName}Slice.reducer;
 `;
 
-// Create directories and files recursively
+const updateStoreFile = (mainFolderName) => {
+  const projectRoot = process.cwd();
+  const storeDirPath = path.join(projectRoot, 'lib', 'redux'); // Point directly to /src/lib/redux
+  
+  if (!fs.existsSync(storeDirPath)) {
+      fs.mkdirSync(storeDirPath, { recursive: true });
+      console.log(`Created folder: ${storeDirPath}`);
+  }
+
+  const storeFilePath = path.join(storeDirPath, 'store.ts');
+  const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
+  const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
+
+  if (fs.existsSync(storeFilePath)) {
+      let storeFileContent = fs.readFileSync(storeFilePath, 'utf8');
+
+      if (!storeFileContent.includes(importStatement)) {
+          storeFileContent = importStatement + storeFileContent;
+      }
+
+      if (!storeFileContent.includes(`${mainFolderName}: ${mainFolderName}Slice`)) {
+          storeFileContent = storeFileContent.replace(
+              /(reducer\s*:\s*\{)/,
+              `$1\n${reducerSnippet}`
+          );
+      }
+
+      fs.writeFileSync(storeFilePath, storeFileContent);
+      console.log(`Updated ${storeFilePath} with ${mainFolderName}Slice in reducer`);
+  } else {
+      const initialStoreContent = `
+      import { configureStore } from '@reduxjs/toolkit';
+      import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';
+
+      export const store = configureStore({
+          reducer: {
+              ${mainFolderName}: ${mainFolderName}Slice,
+          },
+      });
+      `;
+
+      fs.writeFileSync(storeFilePath, initialStoreContent);
+      console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
+  }
+};
+
+
 const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoint) => {
   structure.forEach(folder => {
     const folderPath = folder.name ? path.join(baseDir, folder.name) : baseDir;
@@ -108,7 +155,6 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
       console.log(`Created folder: ${folderPath}`);
     } 
 
-    // Handle files separately if the folder is 'redux'
     if (folder.name === 'redux') {
       const filePath = path.join(folderPath, `${mainFolderName}Slice.ts`);
       if (!fs.existsSync(filePath)) {
@@ -116,23 +162,22 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath} with default content`);
       }
-    } else if(folder.name === 'validation'){
+    } else if (folder.name === 'validation') {
       const filePath = path.join(folderPath, `${mainFolderName}Schema.ts`);
       if (!fs.existsSync(filePath)) {
         let content = `// to Validate With Yup => npm yup`;
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath} with default content`);
       }
-    }else {
-      // Handle other folders' files
+    } else {
       folder.files.forEach(file => {
         const filePath = path.join(folderPath, file);
 
         if (!fs.existsSync(filePath)) {
           let content = `// ${file} content`;
           if (file.endsWith('.tsx')) {
-            const componentName = path.basename(file, '.tsx');  // Extract the component name from the file name
-            content = defaultComponentContent(componentName.charAt(0).toUpperCase() + componentName.slice(1));   // Use the template function for component content
+            const componentName = path.basename(file, '.tsx');
+            content = defaultComponentContent(componentName.charAt(0).toUpperCase() + componentName.slice(1));
           }
 
           fs.writeFileSync(filePath, content);
@@ -157,3 +202,4 @@ if (!fs.existsSync(rootFolder)) {
 }
 
 createDirectoriesAndFiles(rootFolder, folderStructure, mainFolderName, apiEndpoint);
+updateStoreFile(mainFolderName);
