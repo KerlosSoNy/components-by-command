@@ -101,7 +101,7 @@ export default ${componentName}Slice.reducer;
 
 const updateStoreFile = (mainFolderName) => {
   const projectRoot = path.join(process.cwd(), '..');
-  const storeDirPath = path.join(projectRoot, "..",'lib', 'redux');
+  const storeDirPath = path.join(projectRoot,'lib', 'redux');
   
   if (!fs.existsSync(storeDirPath)) {
       fs.mkdirSync(storeDirPath, { recursive: true });
