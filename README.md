@@ -9,6 +9,7 @@ To install the package globally, run:
 ```bash
 npm install -g z-structure-file-generator
 ```
+## Make Sure That You Are in The /src/pages
 
 ## Then
 
