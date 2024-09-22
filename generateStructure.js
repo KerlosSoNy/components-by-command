@@ -119,7 +119,7 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
     } else if(folder.name === 'validation'){
       const filePath = path.join(folderPath, `${mainFolderName}Schema.ts`);
       if (!fs.existsSync(filePath)) {
-        let content = `// ${file} to Validate With Yup`;
+        let content = `// ${filePath} to Validate With Yup`;
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath} with default content`);
       }
@@ -130,7 +130,6 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
 
         if (!fs.existsSync(filePath)) {
           let content = `// ${file} content`;
-
           if (file.endsWith('.tsx')) {
             const componentName = path.basename(file, '.tsx');  // Extract the component name from the file name
             content = defaultComponentContent(componentName.charAt(0).toUpperCase() + componentName.slice(1));   // Use the template function for component content
