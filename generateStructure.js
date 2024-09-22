@@ -50,7 +50,7 @@ import axios from 'axios';
 
 export const get${componentName}s = createAsyncThunk(
   "${componentName.toLowerCase()}/get${componentName}s",
-  async ({ pageSize:number|string|undefined, currenPage:number|string|undefined, search:search|undefined }) => {
+  async ({ pageSize, currenPage=1, search }:{pageSize: number|undefined | string, currenPage: number|undefined | string, search: string}) => {
     try {
       const response = await axios.get(\`${apiEndpoint}?per_page=\${pageSize}&page=\${currenPage}\`, {
         headers: {
