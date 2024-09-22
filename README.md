@@ -9,7 +9,9 @@ To install the package globally, run:
 ```bash
 npm install -g z-structure-file-generator
 ```
-## Make Sure That You Are in The /src/pages
+## Before Start
+
+Make sure that you are in the /src/pages folder
 
 ## Then
 
@@ -21,3 +23,8 @@ generate-structure <componentName> <apiEndpoint>
 ```bash
 generate-structure MyComponent /api/products
 ```
+
+
+## After that 
+
+You just need to modify your store of the redux with the correct file path
