@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const inquirer = require('inquirer');
 const path = require('path');
 const fs = require('fs');
+const { input } = require('@inquirer/prompts');
 
 console.log('Script started');
 
@@ -172,20 +172,8 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
 };
 
 const main = async () => {
-  const answers = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'mainFolderName',
-      message: 'Enter the main folder name:',
-    },
-    {
-      type: 'input',
-      name: 'apiEndpoint',
-      message: 'Enter the API endpoint:',
-    },
-  ]);
-
-  const { mainFolderName, apiEndpoint } = answers;
+  const mainFolderName = await input({ message: 'Enter your file name' });
+  const apiEndpoint = await input({ message: 'Enter your API endpoint name' });
 
   const rootFolder = path.join('.', mainFolderName);
   if (!fs.existsSync(rootFolder)) {
