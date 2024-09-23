@@ -7,13 +7,13 @@ console.log('Script started');
 
 const folderStructure = [
   {
-    name: '',
+    name: '', 
     files: ['index.tsx'],
     subfolders: []
   },
   {
     name: 'components',
-    files: ['button.tsx'],
+    files: ['button.tsx'], 
     subfolders: []
   },
   {
@@ -23,7 +23,7 @@ const folderStructure = [
   },
   {
     name: 'redux',
-    files: [],
+    files: [], 
     subfolders: []
   },
   {
@@ -47,12 +47,61 @@ const defaultSliceContent = (componentName, apiEndpoint) => `
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
 
-// Define async thunks and slice here...
+export const get${componentName}s = createAsyncThunk(
+  "${componentName.toLowerCase()}/get${componentName}s",
+  async ({ pageSize, currenPage=1, search }:{pageSize: number|undefined | string, currenPage: number|undefined | string, search: string}) => {
+    try {
+      const response = await axios.get(\`${apiEndpoint}?per_page=\${pageSize}&page=\${currenPage}\`, {
+        headers: {
+          handle: search,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+export const get${componentName} = createAsyncThunk(
+  "${componentName.toLowerCase()}/get${componentName}",
+  async (id) => {
+    try {
+      const response = await axios.get(\`${apiEndpoint}/\${id}\`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+);
+
+const initialState = {
+  ${componentName.toLowerCase()}s: [],
+  ${componentName.toLowerCase()}: {},
+};
+
+const ${componentName}Slice = createSlice({
+  name: '${componentName.toLowerCase()}',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(get${componentName}s.fulfilled, (state, action) => {
+      state.${componentName.toLowerCase()}s = action.payload;
+    }).addCase(get${componentName}.fulfilled, (state, action) => {
+      state.${componentName.toLowerCase()} = action.payload;
+    });
+  },
+});
+
+export default ${componentName}Slice.reducer;
 `;
+
 
 const updateStoreFile = (mainFolderName) => {
   const projectRoot = process.cwd();
-  const storeFilePath = path.join(projectRoot, 'src', 'lib', 'redux', 'store.ts');
+  const storeFilePath = path.join(projectRoot, '..', 'lib', 'redux', 'store.ts');
 
   const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
   const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
@@ -88,6 +137,7 @@ export const store = configureStore({
       console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
   }
 };
+
 const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoint) => {
   structure.forEach(folder => {
     const folderPath = folder.name ? path.join(baseDir, folder.name) : baseDir;
