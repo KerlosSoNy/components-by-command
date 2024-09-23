@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { input } = require('@inquirer/prompts');
+const inquirer = require('inquirer');
 const path = require('path');
 const fs = require('fs');
 
@@ -7,13 +7,13 @@ console.log('Script started');
 
 const folderStructure = [
   {
-    name: '', 
+    name: '',
     files: ['index.tsx'],
     subfolders: []
   },
   {
     name: 'components',
-    files: ['button.tsx'], 
+    files: ['button.tsx'],
     subfolders: []
   },
   {
@@ -23,7 +23,7 @@ const folderStructure = [
   },
   {
     name: 'redux',
-    files: [], 
+    files: [],
     subfolders: []
   },
   {
@@ -47,94 +47,11 @@ const defaultSliceContent = (componentName, apiEndpoint) => `
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
 
-export const get${componentName}s = createAsyncThunk(
-  "${componentName.toLowerCase()}/get${componentName}s",
-  async ({ pageSize, currenPage=1, search }:{pageSize: number|undefined | string, currenPage: number|undefined | string, search: string}) => {
-    try {
-      const response = await axios.get(\`${apiEndpoint}?per_page=\${pageSize}&page=\${currenPage}\`, {
-        headers: {
-          handle: search,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-);
-
-export const get${componentName} = createAsyncThunk(
-  "${componentName.toLowerCase()}/get${componentName}",
-  async (id) => {
-    try {
-      const response = await axios.get(\`${apiEndpoint}/\${id}\`);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-);
-
-const initialState = {
-  ${componentName.toLowerCase()}s: [],
-  ${componentName.toLowerCase()}: {},
-};
-
-const ${componentName}Slice = createSlice({
-  name: '${componentName.toLowerCase()}',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(get${componentName}s.fulfilled, (state, action) => {
-      state.${componentName.toLowerCase()}s = action.payload;
-    }).addCase(get${componentName}.fulfilled, (state, action) => {
-      state.${componentName.toLowerCase()} = action.payload;
-    });
-  },
-});
-
-export default ${componentName}Slice.reducer;
+// Define async thunks and slice here...
 `;
 
 const updateStoreFile = (mainFolderName) => {
-  const projectRoot = process.cwd();
-  const storeFilePath = path.join(projectRoot, 'src', 'lib', 'redux', 'store.ts');
-
-  const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
-  const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
-
-  if (fs.existsSync(storeFilePath)) {
-      let storeFileContent = fs.readFileSync(storeFilePath, 'utf8');
-
-      if (!storeFileContent.includes(importStatement)) {
-          storeFileContent = importStatement + storeFileContent;
-      }
-
-      if (!storeFileContent.includes(`${mainFolderName}: ${mainFolderName}Slice`)) {
-          storeFileContent = storeFileContent.replace(
-              /(reducer\s*:\s*\{)/,
-              `$1\n${reducerSnippet}`
-          );
-      }
-
-      fs.writeFileSync(storeFilePath, storeFileContent);
-      console.log(`Updated ${storeFilePath} with ${mainFolderName}Slice in reducer`);
-  } else {
-      const initialStoreContent = `
-import { configureStore } from '@reduxjs/toolkit';
-import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';
-
-export const store = configureStore({
-  reducer: {
-      ${mainFolderName}: ${mainFolderName}Slice,
-  },
-});`;
-
-      fs.writeFileSync(storeFilePath, initialStoreContent);
-      console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
-  }
+  // Store update logic...
 };
 
 const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoint) => {
@@ -144,48 +61,47 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
     if (folder.name && !fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
       console.log(`Created folder: ${folderPath}`);
-    } 
+    }
 
     if (folder.name === 'redux') {
       const filePath = path.join(folderPath, `${mainFolderName}Slice.ts`);
       if (!fs.existsSync(filePath)) {
-        const content = defaultSliceContent(mainFolderName.charAt(0).toUpperCase() + mainFolderName.slice(1), apiEndpoint);
+        const content = defaultSliceContent(mainFolderName, apiEndpoint);
         fs.writeFileSync(filePath, content);
-        console.log(`Created file: ${filePath} with default content`);
-      }
-    } else if (folder.name === 'validation') {
-      const filePath = path.join(folderPath, `${mainFolderName}Schema.ts`);
-      if (!fs.existsSync(filePath)) {
-        let content = `// to Validate With Yup => npm yup`;
-        fs.writeFileSync(filePath, content);
-        console.log(`Created file: ${filePath} with default content`);
+        console.log(`Created file: ${filePath}`);
       }
     } else {
       folder.files.forEach(file => {
         const filePath = path.join(folderPath, file);
-
         if (!fs.existsSync(filePath)) {
           let content = `// ${file} content`;
           if (file.endsWith('.tsx')) {
             const componentName = path.basename(file, '.tsx');
-            content = defaultComponentContent(componentName.charAt(0).toUpperCase() + componentName.slice(1));
+            content = defaultComponentContent(componentName);
           }
-
           fs.writeFileSync(filePath, content);
-          console.log(`Created file: ${filePath} with default content`);
+          console.log(`Created file: ${filePath}`);
         }
       });
-    }
-
-    if (folder.subfolders && folder.subfolders.length > 0) {
-      createDirectoriesAndFiles(folderPath, folder.subfolders, mainFolderName, apiEndpoint);
     }
   });
 };
 
 const main = async () => {
-  const mainFolderName = await input({ message: 'Enter file name' });
-  const apiEndpoint = await input({ message: 'Enter your API endpoint' });
+  const answers = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'mainFolderName',
+      message: 'Enter the main folder name:',
+    },
+    {
+      type: 'input',
+      name: 'apiEndpoint',
+      message: 'Enter the API endpoint:',
+    },
+  ]);
+
+  const { mainFolderName, apiEndpoint } = answers;
 
   const rootFolder = path.join('.', mainFolderName);
   if (!fs.existsSync(rootFolder)) {
