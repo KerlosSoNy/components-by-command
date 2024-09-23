@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-
+import { input } from '@inquirer/prompts';
 const path = require('path');
 const fs = require('fs');
-
 
 console.log('Script started');
 
@@ -101,7 +100,7 @@ export default ${componentName}Slice.reducer;
 
 const updateStoreFile = (mainFolderName) => {
   const projectRoot = process.cwd();
-  const storeFilePath = path.join(projectRoot, '..', 'lib', 'redux', 'store.ts');
+  const storeFilePath = path.join(projectRoot, 'src', 'lib', 'redux', 'store.ts');
 
   const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
   const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
@@ -137,7 +136,6 @@ export const store = configureStore({
       console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
   }
 };
-
 
 const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoint) => {
   structure.forEach(folder => {
@@ -185,14 +183,18 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
   });
 };
 
-const mainFolderName = process.argv[2] || 'yourNewComponent'; 
-const apiEndpoint = process.argv[3] || 'https://example.com/api';
+const main = async () => {
+  const mainFolderName = await input({ message: 'Enter file name' });
+  const apiEndpoint = await input({ message: 'Enter your API endpoint' });
 
-const rootFolder = path.join('.', mainFolderName);
-if (!fs.existsSync(rootFolder)) {
-  fs.mkdirSync(rootFolder, { recursive: true });
-  console.log(`Created root folder: ${rootFolder}`);
-}
+  const rootFolder = path.join('.', mainFolderName);
+  if (!fs.existsSync(rootFolder)) {
+    fs.mkdirSync(rootFolder, { recursive: true });
+    console.log(`Created root folder: ${rootFolder}`);
+  }
 
-createDirectoriesAndFiles(rootFolder, folderStructure, mainFolderName, apiEndpoint);
-updateStoreFile(mainFolderName);
+  createDirectoriesAndFiles(rootFolder, folderStructure, mainFolderName, apiEndpoint);
+  updateStoreFile(mainFolderName);
+};
+
+main();

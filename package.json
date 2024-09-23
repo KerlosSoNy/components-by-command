@@ -22,5 +22,8 @@
     "react.js"
   ],
   "author": "Kerlos Magdy",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/input": "^3.0.1"
+  }
 }
