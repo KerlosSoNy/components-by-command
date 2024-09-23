@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { input } from '@inquirer/prompts';
+const { input } = require('@inquirer/prompts');
 const path = require('path');
 const fs = require('fs');
 
