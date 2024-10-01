@@ -1,7 +1,7 @@
 {
   "name": "z-structure-file-generator",
   "description": "CLI tool to generate folder structures",
-  "version": "1.5.5",
+  "version": "1.5.7",
   "main": "index.js",
   "bin": {
     "generate-structure": "./generateStructure.js"
