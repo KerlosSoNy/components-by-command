@@ -167,7 +167,7 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
         console.log(`Created file: ${filePath}`);
       }
     }else if(folder.name === 'styles'){ 
-      const filePath = path.join(folderPath, '.css');
+      const filePath = path.join('style', '.css');
       if (!fs.existsSync(filePath)) {
         const content = `/* ${filePath} */`;
         fs.writeFileSync(filePath, content);
