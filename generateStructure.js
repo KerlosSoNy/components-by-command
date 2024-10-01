@@ -48,7 +48,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
 
 export const get${componentName}s = createAsyncThunk(
-  "${componentName.toLowerCase()}/get${componentName}s",
+  "${componentName.toLowerCase()}Slice/get${componentName}s",
   async ({ pageSize, currenPage=1, search }:{pageSize: number|undefined | string, currenPage: number|undefined | string, search: string}) => {
     try {
       const response = await axios.get(\`${apiEndpoint}?per_page=\${pageSize}&page=\${currenPage}\`, {
@@ -64,8 +64,20 @@ export const get${componentName}s = createAsyncThunk(
   }
 );
 
+export const delete${componentName} = createAsyncThunk(
+    "${componentName.toLowerCase()}Slice/delete${componentName}",
+    async (id: number) => {
+      try {
+        await axiosInstance.delete(\`${apiEndpoint}/\${id}\`);
+      } catch (error) {
+        console.error(error);
+        return error;
+  }
+},
+);
+
 export const get${componentName} = createAsyncThunk(
-  "${componentName.toLowerCase()}/get${componentName}",
+  "${componentName.toLowerCase()}Slice/get${componentName}",
   async (id) => {
     try {
       const response = await axios.get(\`${apiEndpoint}/\${id}\`);
@@ -103,8 +115,8 @@ const updateStoreFile = (mainFolderName) => {
   const projectRoot = process.cwd();
   const storeFilePath = path.join(projectRoot, '..', 'lib', 'redux', 'store.ts');
 
-  const importStatement = `import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';\n`;
-  const reducerSnippet = `    ${mainFolderName}: ${mainFolderName}Slice,\n`;
+  const importStatement =`import ${mainFolderName}Slice from '../../pages/${mainFolderName}/redux/${mainFolderName}Slice';\n`;
+  const reducerSnippet = `${mainFolderName}: ${mainFolderName}Slice,\n`;
 
   if (fs.existsSync(storeFilePath)) {
       let storeFileContent = fs.readFileSync(storeFilePath, 'utf8');
@@ -123,15 +135,15 @@ const updateStoreFile = (mainFolderName) => {
       fs.writeFileSync(storeFilePath, storeFileContent);
       console.log(`Updated ${storeFilePath} with ${mainFolderName}Slice in reducer`);
   } else {
-      const initialStoreContent = `
-import { configureStore } from '@reduxjs/toolkit';
-import ${mainFolderName}Slice from './${mainFolderName}/${mainFolderName}Slice';
+    const initialStoreContent = `
+    import { configureStore } from '@reduxjs/toolkit';
+    import ${mainFolderName}Slice from '../../pages/${mainFolderName}/redux/${mainFolderName}Slice';
 
-export const store = configureStore({
-  reducer: {
-      ${mainFolderName}: ${mainFolderName}Slice,
-  },
-});`;
+    export const store = configureStore({
+      reducer: {
+          ${mainFolderName}: ${mainFolderName}Slice,
+      },
+    });`;
 
       fs.writeFileSync(storeFilePath, initialStoreContent);
       console.log(`Created ${storeFilePath} and added ${mainFolderName}Slice in the reducer`);
@@ -154,7 +166,14 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath}`);
       }
-    } else {
+    }else if(folder.name === 'styles'){ 
+      const filePath = path.join(file, '.css');
+      if (!fs.existsSync(filePath)) {
+        const content = `/* ${filePath} */`;
+        fs.writeFileSync(filePath, content);
+        console.log(`Created file: ${filePath}`);
+      }
+    }else {
       folder.files.forEach(file => {
         const filePath = path.join(folderPath, file);
         if (!fs.existsSync(filePath)) {
