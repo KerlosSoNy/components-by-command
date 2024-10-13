@@ -43,6 +43,19 @@ export default function ${componentName}(){
 }
 `;
 
+const newComponent = (componentName) => `
+import React from 'react';
+
+export default function ${componentName}(){
+    return (
+      <div>
+        <h1>${componentName}</h1>
+        <p>This is an extended component!</p>
+      </div>
+    );
+}
+`;
+
 const defaultSliceContent = (componentName, apiEndpoint) => `
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
@@ -166,22 +179,27 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath}`);
       }
-    }else if(folder.name === 'styles'){ 
+    } else if (folder.name === 'styles') { 
       const filePath = path.join(folderPath, 'style.css');
       if (!fs.existsSync(filePath)) {
         const content = `/* ${filePath} */`;
         fs.writeFileSync(filePath, content);
         console.log(`Created file: ${filePath}`);
       }
-    }else {
+    } else {
       folder.files.forEach(file => {
         const filePath = path.join(folderPath, file);
         if (!fs.existsSync(filePath)) {
           let content = `// ${file} content`;
-          if (file.endsWith('.tsx')) {
+          
+          // Check if the file is 'index.tsx' and use the extended component template
+          if (file === 'index.tsx') {
+            content = newComponent(`${mainFolderName.charAt(0).toUpperCase()}${mainFolderName.slice(1)}`);
+          } else if (file.endsWith('.tsx')) {
             const componentName = path.basename(file, '.tsx');
             content = defaultComponentContent(componentName);
           }
+
           fs.writeFileSync(filePath, content);
           console.log(`Created file: ${filePath}`);
         }
