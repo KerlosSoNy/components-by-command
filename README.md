@@ -16,15 +16,22 @@ Make sure that you are in the /src/pages folder
 ## Then
 
 ```bash
-generate-structure <componentName> <apiEndpoint>
+generate-structure 
 ```
 
-## Example 
+## Then
+
 ```bash
-generate-structure MyComponent /api/products
+Then file name 
+```
+
+## Then
+
+```bash
+Then api end-point
 ```
 
 
 ## After that 
 
-You just need to modify your store of the redux with the correct file path
+You just need to modify your routes only to navigate to the new page
