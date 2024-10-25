@@ -1,6 +1,7 @@
+
 # Folder Structure Generator
 
-A command-line tool to generate folder structures and files with default content like redux toolkit slice ,update routes.tsx file and update store.ts for redux toolkit.
+A command-line tool to generate a standard folder structure and files for Redux Toolkit slices, update `routes.tsx`, and update `store.ts` for Redux integration.
 
 ## Installation
 
@@ -10,54 +11,63 @@ To install the package globally, run:
 npm install -g z-structure-file-generator
 ```
 
-## Before Start
+## Prerequisites
 
-Make sure that you are here in src/pages
- .
-    ├── ...
-    ├── src                    
-    │   └── pages    
-    |       └── ...         
-    └── ...
+Ensure your project directory structure is set up as follows before you start:
 
-And you have this files in the lib folder if you haven`t the package will generate it by default
+```plaintext
 .
-    ├── ...
-    ├── src                    
-    │   ├── lib  
-    │   │   ├── redux    
-    │   │   │   └── redux.ts
-    |   |   └── routes
-    |   |       └── routes.tsx
-    │   └── pages             
-    └── ...
-
-
-## Then
-
-```bash
-generate-structure 
+├── ...
+├── src                    
+│   ├── pages    
+│   └── lib
+│       ├── redux    
+│       │   └── store.ts      # If this file doesn't exist, the package will create it
+│       └── routes
+│           └── routes.tsx    # If this file doesn't exist, the package will create it
+└── ...
 ```
 
-## Then
+The tool will create missing files in `src/lib/redux` and `src/lib/routes` if they aren’t found.
+
+## Usage
+
+To start the folder structure generation process, run the following command in your terminal:
 
 ```bash
-Then file name 
+generate-structure
 ```
 
-## Then
+### Step-by-Step Instructions
 
-```bash
-Then api end-point
-```
+1. **Enter the file name**: The name of the main file or component you wish to create.
+   
+2. **Enter the API endpoint**: Specify the API endpoint associated with the file or component.
 
-## Then
+3. **Enter the route path**: Specify the new route for this page. This will be added to `routes.tsx`.
 
-```bash
-Then the new route of this page
-```
+### Example
 
+1. Run the command:
 
-## After that 
+    ```bash
+    generate-structure
+    ```
 
-You just need to start your work and add your content
+2. When prompted:
+
+    ```plaintext
+    Enter the file name: userProfile
+    Enter the API endpoint: /api/user/profile
+    Enter the new route path: /user/profile
+    ```
+
+After completing these steps, the tool will:
+
+- Generate a new folder and file structure based on your input.
+- Add the necessary imports and configurations in `store.ts` for Redux Toolkit.
+- Update `routes.tsx` to include the new route.
+
+## Getting Started with Development
+
+After the structure generation is complete, you can begin development by adding your specific content to the generated files.
