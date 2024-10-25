@@ -32,7 +32,7 @@ The tool will create missing files in `src/lib/redux` and `src/lib/routes` if th
 
 ## Usage
 
-To start the folder structure generation process, run the following command in your terminal:
+To start the folder structure generation process,enure that you are in the `src/pages` then, run the following command in your terminal:
 
 ```bash
 generate-structure
