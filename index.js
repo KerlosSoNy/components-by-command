@@ -59,6 +59,7 @@ export default function ${componentName}(){
 const defaultSliceContent = (componentName, apiEndpoint) => `
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
+import axiosInstance from "../../../lib/axios/axios";
 
 export const get${componentName}s = createAsyncThunk(
   "${componentName.toLowerCase()}Slice/get${componentName}s",
@@ -208,10 +209,66 @@ const createDirectoriesAndFiles = (baseDir, structure, mainFolderName, apiEndpoi
   });
 };
 
+const updateRoutesFile = (mainFolderName, routeName) => {
+  const projectRoot = process.cwd();
+  const routesFilePath = path.join(projectRoot, '..', 'lib', 'routes', 'routes.tsx');
+
+  // Define import and route code snippets
+  const importStatement = `import ${mainFolderName.charAt(0).toUpperCase()}${mainFolderName.slice(1)} from '../../pages/${mainFolderName}';\n`;
+  const routeSnippet = `{
+    path: "/${routeName}",
+    element: <${mainFolderName.charAt(0).toUpperCase()}${mainFolderName.slice(1)} />
+  },\n`;
+
+  // Check if routes file exists
+  if (fs.existsSync(routesFilePath)) {
+    let routesFileContent = fs.readFileSync(routesFilePath, 'utf8');
+
+    // Add import if it doesn’t exist
+    if (!routesFileContent.includes(importStatement)) {
+      routesFileContent = importStatement + routesFileContent;
+    }
+
+    // Add route to routes array if it doesn’t exist
+    if (!routesFileContent.includes(`path: "/${mainFolderName.toLowerCase()}"`)) {
+      routesFileContent = routesFileContent.replace(
+        /(createBrowserRouter\(\s*\[)/,
+        `$1\n${routeSnippet}`
+      );
+    }
+
+    fs.writeFileSync(routesFilePath, routesFileContent);
+    console.log(`Updated ${routesFilePath} with a route for ${mainFolderName}`);
+  } else {
+    // If routes file doesn't exist, create it
+    const initialRoutesContent = `
+    import ${mainFolderName.charAt(0).toUpperCase()}${mainFolderName.slice(1)} from '../../pages/${mainFolderName}';
+    import { createBrowserRouter } from "react-router-dom";
+    import App from "../../App";
+    
+    export const routes = createBrowserRouter([
+      {
+        path: "/",
+        element: <App />
+      },
+      {
+        path: "/${routeName}",
+        element: <${mainFolderName.charAt(0).toUpperCase()}${mainFolderName.slice(1)} />
+      }
+    ]);
+    `;
+
+    fs.writeFileSync(routesFilePath, initialRoutesContent);
+    console.log(`Created ${routesFilePath} and added a route for ${mainFolderName}`);
+  }
+};
+
+
 const main = async () => {
   const mainFolderName = await input({ message: 'Enter your file name' });
   const apiEndpoint = await input({ message: 'Enter your API endpoint name' });
-
+  const routeName = await input({ message: 'what should be the route' });
+  
   const rootFolder = path.join('.', mainFolderName);
   if (!fs.existsSync(rootFolder)) {
     fs.mkdirSync(rootFolder, { recursive: true });
@@ -220,6 +277,7 @@ const main = async () => {
 
   createDirectoriesAndFiles(rootFolder, folderStructure, mainFolderName, apiEndpoint);
   updateStoreFile(mainFolderName);
+  updateRoutesFile(mainFolderName,routeName);
 };
 
 main();
