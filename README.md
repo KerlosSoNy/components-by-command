@@ -12,7 +12,26 @@ npm install -g z-structure-file-generator
 
 ## Before Start
 
-Make sure that you are in the /src/pages folder
+Make sure that you are here in src/pages
+ .
+    ├── ...
+    ├── src                    
+    │   └── pages    
+    |       └── ...         
+    └── ...
+
+And you have this files in the lib folder if you haven`t the package will generate it by default
+.
+    ├── ...
+    ├── src                    
+    │   ├── lib  
+    │   │   ├── redux    
+    │   │   │   └── redux.ts
+    |   |   └── routes
+    |   |       └── routes.tsx
+    │   └── pages             
+    └── ...
+
 
 ## Then
 
